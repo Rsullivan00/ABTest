@@ -21,8 +21,8 @@ type alias ABChoice =
     }
 
 type alias ABTest =
-    { left: Int
-    , right: Int
+    { left: ABChoice
+    , right: ABChoice
     , description: String
     }
 
@@ -36,7 +36,7 @@ choiceB =
 
 model : ABTest
 model =
-  ABTest 0 0 "Image comparison description"
+  ABTest choiceA choiceB "Image comparison description"
 
 type Side
   = Left
@@ -56,11 +56,11 @@ update : Msg -> ABTest -> ABTest
 update msg model =
   case msg of
     ChooseLeft ->
-      { model | left = model.left + 1 }
+      { model | left = ABChoice (model.left.votes + 1) model.left.image }
     ChooseRight ->
-      { model | right = model.right+ 1 }
+      { model | right = ABChoice (model.right.votes + 1) model.right.image }
     Reset ->
-      ABTest 0 0 model.description
+      ABTest choiceA choiceB model.description
 
 
 -- VIEW
