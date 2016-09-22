@@ -1,53 +1,39 @@
 module ABTest exposing (..)
 
 import Html exposing (Html, button, div, text)
-import Html.App as Html
+import Html.App
 import Html.Events exposing (onClick)
 
--- MODEL
-type alias ABChoice =
-    { votes: Int
-    , image: String
-    }
+import TestOption
 
+-- MODEL
 type alias ABTest =
-    { left: ABChoice
-    , right: ABChoice
+    { left: TestOption.Model
+    , right: TestOption.Model
     , description: String
     }
 
-type Side
-  = Left
-  | Right
-
-choiceA: ABChoice
-choiceA =
-  ABChoice 0 "image_a.png"
-
-choiceB: ABChoice
-choiceB =
-  ABChoice 0 "image_b.png"
-
-model : ABTest
-model =
-  ABTest choiceA choiceB "Image comparison description"
+init : ABTest
+init =
+  ABTest TestOption.init TestOption.init "Image comparison description"
 
 
 -- UPDATE
 type Msg
-  = ChooseLeft
-  | ChooseRight
+  = TestOptionMsg TestOption.Msg
   | Reset
 
 update : Msg -> ABTest -> ABTest
 update msg model =
   case msg of
-    ChooseLeft ->
-      { model | left = ABChoice (model.left.votes + 1) model.left.image }
-    ChooseRight ->
-      { model | right = ABChoice (model.right.votes + 1) model.right.image }
+    TestOptionMsg subMsg ->
+      let
+        updatedTestOption =
+          TestOption.update subMsg model.left
+      in
+        { model | left = updatedTestOption }
     Reset ->
-      ABTest choiceA choiceB model.description
+      init
 
 
 -- VIEW
@@ -57,8 +43,8 @@ view : ABTest -> Html Msg
 view model =
   div []
     [
-      div [ onClick ChooseLeft ] [ text "left image" ]
-    , div [ onClick ChooseRight ] [ text "right image" ]
-    , div [] [ text (toString model) ]
+      Html.App.map TestOptionMsg (TestOption.view model.left),
+      Html.App.map TestOptionMsg (TestOption.view model.right)
+    , div [] [ text model.description ]
     , button [ onClick Reset ] [ text "Reset" ]
     ]
