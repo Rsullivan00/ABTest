@@ -20,31 +20,36 @@ init =
 
 -- UPDATE
 type Msg
-  = TestOptionMsg TestOption.Msg
+  = Left TestOption.Msg
+  | Right TestOption.Msg
   | Reset
 
 update : Msg -> ABTest -> ABTest
 update msg model =
   case msg of
-    TestOptionMsg subMsg ->
+    Left subMsg ->
       let
         updatedTestOption =
           TestOption.update subMsg model.left
       in
         { model | left = updatedTestOption }
+    Right subMsg ->
+      let
+        updatedTestOption =
+          TestOption.update subMsg model.right
+      in
+        { model | right = updatedTestOption }
     Reset ->
       init
 
 
 -- VIEW
-
-
 view : ABTest -> Html Msg
 view model =
   div []
     [
-      Html.App.map TestOptionMsg (TestOption.view model.left),
-      Html.App.map TestOptionMsg (TestOption.view model.right)
+      Html.App.map Left (TestOption.view model.left),
+      Html.App.map Right (TestOption.view model.right)
     , div [] [ text model.description ]
     , button [ onClick Reset ] [ text "Reset" ]
     ]
