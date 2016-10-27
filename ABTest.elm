@@ -13,9 +13,10 @@ type alias ABTest =
     , description: String
     }
 
-init : ABTest
+init : (ABTest, Cmd Msg)
 init =
-  ABTest TestOption.init TestOption.init "Image comparison description"
+  (ABTest (fst TestOption.init) (fst TestOption.init) "Image comparison description"
+  , Cmd.none)
 
 
 -- UPDATE
@@ -24,7 +25,7 @@ type Msg
   | Right TestOption.Msg
   | Reset
 
-update : Msg -> ABTest -> ABTest
+update : Msg -> ABTest -> (ABTest, Cmd Msg)
 update msg model =
   case msg of
     Left subMsg ->
@@ -32,13 +33,13 @@ update msg model =
         updatedTestOption =
           TestOption.update subMsg model.left
       in
-        { model | left = updatedTestOption }
+        ({ model | left = fst updatedTestOption }, Cmd.map Left (snd updatedTestOption))
     Right subMsg ->
       let
         updatedTestOption =
           TestOption.update subMsg model.right
       in
-        { model | right = updatedTestOption }
+        ({ model | right = fst updatedTestOption }, Cmd.map Right (snd updatedTestOption))
     Reset ->
       init
 
